@@ -41,4 +41,7 @@ public:
 		glm::mat4 local_r = glm::mat4(1)
 	);
 
+	size_t getNumSubModels();
+	std::string getNameOfSubModel(int index);
+
 };

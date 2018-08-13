@@ -215,3 +215,11 @@ void GrlModel::drawSubModel(const shared_ptr<Program> prog, unsigned int subMode
 	glDrawArrays(GL_TRIANGLES, 0, subModels[subModelIndex].posData.size());
 	glBindVertexArray(0);
 }
+
+size_t GrlModel::getNumSubModels() {
+	return subModels.size();
+}
+
+std::string GrlModel::getNameOfSubModel(int index) {
+	return subModels[index].name;
+}

@@ -153,10 +153,17 @@ public:
 		M = glm::rotate(M, 3.14f, vec3(1, 0, 0));
 		M = glm::rotate(M, 3.14f, vec3(0, 1, 0));
 
+		mat4 localR;
+
         phongShader->bind();
         phongShader->setMVP(&M[0][0], &V[0][0], &P[0][0]);
-		f18Model->drawSubModel(phongShader, "LOD0", M);
-		f18Model->drawSubModel(phongShader, "RudderL01", M, glm::rotate(mat4(1), 3.14159f / 4.f, vec3(0, 1, 0)));
+		for (size_t i = 0; i < f18Model->getNumSubModels(); i++) {
+			localR = glm::mat4(1);
+			if (f18Model->getNameOfSubModel(i) == "RudderL01") {
+				localR = glm::rotate(mat4(1), 3.14159f / 4.f, vec3(0, 1, 0));
+			}
+			f18Model->drawSubModel(phongShader, i, M, localR);
+		}
 		
         phongShader->unbind();
 	}
