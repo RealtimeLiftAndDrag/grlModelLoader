@@ -103,15 +103,9 @@ public:
     }
 
 	void initGeom(const std::string& resourceDirectory) {
-
 		f18Model = make_shared<GrlModel>();
 		f18Model->loadSubModels(resourceDirectory + "/f18.grl");
 		f18Model->init();
-        /*shape = make_shared<Shape>();
-        shape->loadMesh(resourceDirectory + "/sphere.obj");
-        shape->resize();
-        shape->init();
-*/
 	}
 	
 	void init(const std::string& resourceDirectory) {
@@ -122,7 +116,7 @@ public:
         
 		// Initialize the GLSL programs
         phongShader = std::make_shared<Program>();
-        phongShader->setShaderNames(resourceDirectory + "/phong.vert", resourceDirectory + "/phong.frag");
+        phongShader->setShaderNames(resourceDirectory + "/normal.vert", resourceDirectory + "/normal.frag");
         phongShader->init();
 	}
     
@@ -131,6 +125,29 @@ public:
         float aspect = windowManager->getAspect();
         return glm::perspective(fov, aspect, 0.01f, 10000.0f);
     }
+
+	void drawF18Model(mat4 M = mat4(1)) {
+		f18Model->drawSubModel(phongShader, "VoletR01", M);
+		f18Model->drawSubModel(phongShader, "ElevatorL01", M);
+		f18Model->drawSubModel(phongShader, "Glass_Canopy", M);
+		f18Model->drawSubModel(phongShader, "RudderL01", M);
+		f18Model->drawSubModel(phongShader, "AileronL01", M);
+		f18Model->drawSubModel(phongShader, "Pilot", M);
+		f18Model->drawSubModel(phongShader, "Glass", M);
+		f18Model->drawSubModel(phongShader, "VoletL01", M);
+		f18Model->drawSubModel(phongShader, "LOD0", M);
+		f18Model->drawSubModel(phongShader, "Hook", M);
+		f18Model->drawSubModel(phongShader, "EngineR01", M);
+		f18Model->drawSubModel(phongShader, "FlapL01", M);
+		f18Model->drawSubModel(phongShader, "AileronR01", M);
+		f18Model->drawSubModel(phongShader, "Eject_Seat", M);
+		f18Model->drawSubModel(phongShader, "FlapR01", M);
+		f18Model->drawSubModel(phongShader, "RudderR01", M);
+		f18Model->drawSubModel(phongShader, "ElevatorR01", M);
+		f18Model->drawSubModel(phongShader, "Glass_HUD", M);
+		f18Model->drawSubModel(phongShader, "EngineL01", M);
+		f18Model->drawSubModel(phongShader, "Canopy01", M);
+	}
 
 	void render() {
 		double frametime = get_last_elapsed_time();
@@ -152,19 +169,14 @@ public:
         M = glm::translate(M, glm::vec3(0, 0, -20));
 		M = glm::rotate(M, 3.14f, vec3(1, 0, 0));
 		M = glm::rotate(M, 3.14f, vec3(0, 1, 0));
+		mat4 N = glm::inverse(glm::transpose(M));
 
 		mat4 localR;
 
         phongShader->bind();
         phongShader->setMVP(&M[0][0], &V[0][0], &P[0][0]);
-		for (size_t i = 0; i < f18Model->getNumSubModels(); i++) {
-			localR = glm::mat4(1);
-			if (f18Model->getNameOfSubModel(i) == "RudderL01") {
-				localR = glm::rotate(mat4(1), 3.14159f / 4.f, vec3(0, 1, 0));
-			}
-			f18Model->drawSubModel(phongShader, i, M, localR);
-		}
-		
+		phongShader->setMatrix("N", &N[0][0]);
+		drawF18Model(M);
         phongShader->unbind();
 	}
 };
