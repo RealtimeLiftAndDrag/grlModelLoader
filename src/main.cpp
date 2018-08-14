@@ -28,10 +28,21 @@ double get_last_elapsed_time() {
 	return difference;
 }
 
+
+
 class Application : public EventCallbacks {
 public:
+	struct PlaneControlAngles {
+		float stabilator_L = 0;
+		float stabilator_R = 0;
+		float rudder_L = 0;
+		float rudder_R = 0;
+		float aileron_L = 0;
+		float aileron_R = 0;
+	};
 	WindowManager *windowManager = nullptr;
     Camera *camera = nullptr;
+	PlaneControlAngles f18Controls;
 	std::shared_ptr<GrlModel> f18Model;
     std::shared_ptr<Shape> shape;
 	std::shared_ptr<Program> phongShader;
@@ -75,6 +86,37 @@ public:
             glfwSetInputMode(window, GLFW_CURSOR, mouseCaptured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
             resetMouseMoveInitialValues(window);
         }
+
+		//raise/lower stabilators
+		if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+			f18Controls.stabilator_L += 0.02f;
+			f18Controls.stabilator_R += 0.02f;
+		}
+		if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+			f18Controls.stabilator_L -= 0.02f;
+			f18Controls.stabilator_R -= 0.02f;
+		}
+
+		//raise/lower ailerons
+		if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+			f18Controls.aileron_L += 0.02f;
+			f18Controls.aileron_R += 0.02f;
+		}
+		if (key == GLFW_KEY_V && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+			f18Controls.aileron_L -= 0.02f;
+			f18Controls.aileron_R -= 0.02f;
+		}
+
+		//raise/lower rudders
+		if (key == GLFW_KEY_B && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+			f18Controls.rudder_L += 0.02f;
+			f18Controls.rudder_R += 0.02f;
+		}
+		if (key == GLFW_KEY_N && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+			f18Controls.rudder_L -= 0.02f;
+			f18Controls.rudder_R -= 0.02f;
+		}
+
 	}
 
 	void mouseCallback(GLFWwindow *window, int button, int action, int mods) {
@@ -127,12 +169,26 @@ public:
     }
 
 	void drawF18Model(mat4 M = mat4(1)) {
-		
+		f18Model->drawSubModel(phongShader, "ElevatorL01", M,
+			glm::rotate(mat4(1), f18Controls.stabilator_L, vec3(1, 0, 0))
+		);
+		f18Model->drawSubModel(phongShader, "ElevatorR01", M,
+			glm::rotate(mat4(1), f18Controls.stabilator_R, vec3(1, 0, 0))
+		);
+		f18Model->drawSubModel(phongShader, "RudderL01", M,
+			glm::rotate(mat4(1), f18Controls.rudder_L, vec3(0, 1, 0))
+		);
+		f18Model->drawSubModel(phongShader, "RudderR01", M,
+			glm::rotate(mat4(1), f18Controls.rudder_R, vec3(0, 1, 0))
+		);
+		f18Model->drawSubModel(phongShader, "AileronL01", M,
+			glm::rotate(mat4(1), f18Controls.aileron_L, vec3(1, 0, 0))
+		);
+		f18Model->drawSubModel(phongShader, "AileronR01", M,
+			glm::rotate(mat4(1), f18Controls.aileron_R, vec3(1, 0, 0))
+		);
 		f18Model->drawSubModel(phongShader, "VoletR01", M);
-		f18Model->drawSubModel(phongShader, "ElevatorL01", M);
 		f18Model->drawSubModel(phongShader, "Glass_Canopy", M);
-		f18Model->drawSubModel(phongShader, "RudderL01", M);
-		f18Model->drawSubModel(phongShader, "AileronL01", M);
 		f18Model->drawSubModel(phongShader, "Pilot", M);
 		f18Model->drawSubModel(phongShader, "Glass", M);
 		f18Model->drawSubModel(phongShader, "VoletL01", M);
@@ -140,11 +196,8 @@ public:
 		f18Model->drawSubModel(phongShader, "Hook", M);
 		f18Model->drawSubModel(phongShader, "EngineR01", M);
 		f18Model->drawSubModel(phongShader, "FlapL01", M);
-		f18Model->drawSubModel(phongShader, "AileronR01", M);
 		f18Model->drawSubModel(phongShader, "Eject_Seat", M);
 		f18Model->drawSubModel(phongShader, "FlapR01", M);
-		f18Model->drawSubModel(phongShader, "RudderR01", M);
-		f18Model->drawSubModel(phongShader, "ElevatorR01", M);
 		f18Model->drawSubModel(phongShader, "Glass_HUD", M);
 		f18Model->drawSubModel(phongShader, "EngineL01", M);
 		f18Model->drawSubModel(phongShader, "Canopy01", M);
